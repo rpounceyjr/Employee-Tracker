@@ -82,11 +82,15 @@ function viewDepartment() {
     connection.query("SELECT * FROM department", function (err, res) {
         if (err) throw err;
         for (let i = 0; i < res.length; i++) {
-            console.log("\n" + res[i].name);
+            console.table([
+                {
+                    department: res[i].name
+                }
+            ]);
         }
-    }
-    )
-start();
+        start();
+    })
+
 }
 
 
