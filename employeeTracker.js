@@ -39,11 +39,33 @@ function start(){
             connection.end();
         }else{
             console.log("Add a department");
-            connection.end();
+            addDepartment();
         }
     })
 }
-// function addDepartment(){
+function addDepartment(){
+    inquirer
+    .prompt([
+        {
+            name: "department",
+            type: "input",
+            message: "What department would you like to add?"
+         }
+    ])
+    .then(function(answer){
+        connection.query(
+        "INSERT INTO department SET ?",
+        {
+          name: answer.department
+        },
+        function(err) {
+          if (err) throw err;
+          console.log("Deparment added succesfully!");
+
+          start();
+        }
+      );
+    })
 
 // }
 
@@ -53,4 +75,4 @@ function start(){
 
 // function addRole(){
     
-// }
+}
