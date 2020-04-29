@@ -37,8 +37,7 @@ function start() {
                 console.log("add an employee");
                 connection.end();
             } else if (answer.start === "Add a role") {
-                console.log("add a role");
-                connection.end();
+                addRole();
             } else if (answer.start === "Add a department") {
                 console.log("Add a department");
                 addDepartment();
@@ -90,9 +89,44 @@ function viewDepartment() {
         }
         start();
     })
-
 }
 
+function addRole() {
+    inquirer
+        .prompt([
+            {
+                name: "title",
+                type: "input",
+                message: "What is the title of this role?"
+            },
+            {
+                name: "salary",
+                type: "input",
+                message: "What is the salary of this position?"
+
+            },
+            {
+                name: "department",
+                type: "input",
+                message: "What is the ID of the department containing this role?"
+            }
+        ]).then(function (answer) {
+            connection.query(
+                "INSERT INTO role SET ?",
+                {
+                    title: answer.title,
+                    salary: answer.salary,
+                    department_id: answer.department
+                },
+                function (err) {
+                    if (err) throw err;
+                    console.log("Department added succesfully!");
+
+                    start();
+                }
+            );
+        })
+}
 
     // function addEmployee(){
     //     inquirer
@@ -111,7 +145,7 @@ function viewDepartment() {
     //             },
     //             function (err) {
     //                 if (err) throw err;
-    //                 console.log("Deparment added succesfully!");
+    //                 console.log("Employee added succesfully!");
 
     //                 start();
     //             }
