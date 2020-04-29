@@ -34,8 +34,7 @@ function start() {
             }
         ]).then(function (answer) {
             if (answer.start === "Add an employee") {
-                console.log("add an employee");
-                connection.end();
+                addEmployee();
             } else if (answer.start === "Add a role") {
                 addRole();
             } else if (answer.start === "Add a department") {
@@ -127,32 +126,49 @@ function addRole() {
             );
         })
 }
+//first_name, last_name, role_id, manager_id
+    function addEmployee(){
+        inquirer
+        .prompt([
+            {
+                name: "first",
+                type: "input",
+                message: "What is this employee's first name?"
+            },
+            {
+                name: "last",
+                type: "input",
+                message: "What is this employee's last name?"
+            },
+            {
+                name: "role",
+                type: "input",
+                message: "What is this employee's role ID?"
+            },
+            {
+                name: "manager",
+                type: "input",
+                message: "What is the ID of this employee's manager?"
+            },
+        ])
+        .then(function (answer) {
+            connection.query(
+                "INSERT INTO employee SET ?",
+                {
+                    first_name: answer.first,
+                    last_name: answer.last,
+                    role_id: answer.role,
+                    manager_id: answer.manager
+                },
+                function (err) {
+                    if (err) throw err;
+                    console.log("Employee added succesfully!");
 
-    // function addEmployee(){
-    //     inquirer
-    //     .prompt([
-    //         {
-    //             name: "name",
-    //             type: "input",
-    //             message: "What is this employee's name?"
-    //         }
-    //     ])
-    //     .then(function (answer) {
-    //         connection.query(
-    //             "INSERT INTO department SET ?",
-    //             {
-    //                 name: answer.department
-    //             },
-    //             function (err) {
-    //                 if (err) throw err;
-    //                 console.log("Employee added succesfully!");
+                    start();
+                }
+            );
+        })
 
-    //                 start();
-    //             }
-    //         );
-    //     })
+    }
 
-    // }
-
-    // function addRole(){
 
