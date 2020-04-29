@@ -41,11 +41,9 @@ function start() {
                 console.log("Add a department");
                 addDepartment();
             } else if (answer.start === "View employee") {
-                console.log("View employee");
-                connection.end();
+                viewEmployees()
             } else if (answer.start === "View roles") {
-                console.log("View roles");
-                connection.end();
+                viewRoles();
             } else {
                 viewDepartment();
             }
@@ -126,9 +124,26 @@ function addRole() {
             );
         })
 }
+
+function viewRoles() {
+    connection.query("SELECT * FROM role", function (err, res) {
+        if (err) throw err;
+        for (let i = 0; i < res.length; i++) {
+            console.table([
+                {
+                    Role: res[i].title,
+                    Salary: res[i].salary,
+                    Department: res[i].department_id
+
+                }
+            ]);
+        }
+        start();
+    })
+}
 //first_name, last_name, role_id, manager_id
-    function addEmployee(){
-        inquirer
+function addEmployee() {
+    inquirer
         .prompt([
             {
                 name: "first",
@@ -168,7 +183,20 @@ function addRole() {
                 }
             );
         })
-
-    }
-
+}
+function viewEmployees() {
+    connection.query("SELECT * FROM employee", function (err, res) {
+        if (err) throw err;
+        for (let i = 0; i < res.length; i++) {
+            console.table([
+                {
+                    Name: res[i].first_name + res[i].last_name,
+                    "Role ID": res[i].role_id,
+                    "Manager ID": res[i].manager_id
+                }
+            ]);
+        }
+        start();
+    })
+}
 
