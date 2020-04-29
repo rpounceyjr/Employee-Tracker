@@ -80,7 +80,8 @@ function viewDepartment() {
         for (let i = 0; i < res.length; i++) {
             console.table([
                 {
-                    department: res[i].name
+                    "Department ID": res[i].id,
+                    Department: res[i].name
                 }
             ]);
         }
@@ -126,14 +127,14 @@ function addRole() {
 }
 
 function viewRoles() {
-    connection.query("SELECT * FROM role", function (err, res) {
+    connection.query("SELECT * FROM role LEFT JOIN department ON role.department_id = department.id", function (err, res) {
         if (err) throw err;
         for (let i = 0; i < res.length; i++) {
             console.table([
                 {
                     Role: res[i].title,
                     Salary: res[i].salary,
-                    Department: res[i].department_id
+                    Department: res[i].name
 
                 }
             ]);
@@ -190,7 +191,8 @@ function viewEmployees() {
         for (let i = 0; i < res.length; i++) {
             console.table([
                 {
-                    Name: res[i].first_name + res[i].last_name,
+                    ID : res[i].id,
+                    Name: res[i].first_name + " " + res[i].last_name,
                     "Role ID": res[i].role_id,
                     "Manager ID": res[i].manager_id
                 }
