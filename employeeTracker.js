@@ -241,20 +241,21 @@ function updateEmployeeRole() {
     inquirer
         .prompt([
             {
-                name: "employee",
+                name: "name",
                 type: "input",
-                message: "What is the employee ID of the employee whose role you would like to update?"
+                message: "What is the name of the employee whose role you would like to update?"
             },
             {
                 name: "role",
                 type: "input",
-                message: "What is the ID of the role you would like to update?"
+                message: "What is the ID of the role to which you would like to update?"
             }
         ]).then((answer) => {
             //need to figure out two WHERE constraints
-            connection.query("UPDATE employee SET role_id=? WHERE id=?",
+            const names = answer.name.split(" ");
+            connection.query("UPDATE employee SET first_name=?, last_name=? WHERE id=?",
                 [
-                    answer.role, answer.id
+                    names[0], names[1], answer.id
                 ],
                 function (err) {
                     if (err) throw err;
