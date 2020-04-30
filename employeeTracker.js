@@ -31,7 +31,7 @@ function start() {
                 name: "start",
                 choices: ["Add an employee", "Add a role", "Add a department",
                     "View employees", "View roles", "View departments", "Update employee role",
-                    "Delete employee"]
+                    "View employees by manager", "Delete employee"]
             }
         ]).then(function (answer) {
             if (answer.start === "Add an employee") {
@@ -49,6 +49,8 @@ function start() {
                 viewDepartment();
             } else if (answer.start === "Update employee role") {
                 updateEmployeeRole();
+            } else if (answer.start === "View employees by manager") {
+                viewEmployeesByManager();
             } else {
                 deleteEmployee();
             }
@@ -237,6 +239,7 @@ function viewEmployees() {
         start();
     })
 }
+// this one is good
 function updateEmployeeRole() {
     inquirer
         .prompt([
@@ -267,7 +270,7 @@ function updateEmployeeRole() {
         })
 
 }
-
+//this one is good
 function deleteEmployee() {
     inquirer
         .prompt([
@@ -291,4 +294,26 @@ function deleteEmployee() {
                 }
             );
         })
+}
+
+function viewEmployeesByManager() {
+
+    connection.query("SELECT DISTINCT m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last, e.id AS employee_id, e.first_name AS employee_first, e.last_name AS employee_last FROM employee m LEFT JOIN employee e ON m.id=e.manager_id ORDER BY m.id ASC", (err, res) => {
+        if (err) throw err;
+        const managersArray = [];
+        for (let i = 0; i < res.length; i++) {
+            managersArray.push(
+                {
+                    "Manager ID": res[i].manager_id,
+                    Manager: res[i].manager_first + " " + res[i].manager_last,
+                    "Employee ID": res[i].employee_id,
+                    Employee: res[i].employee_first + " " + res[i].employee_last
+                }
+
+            )
+
+        }
+        console.table(managersArray);
+        start();
+    })
 }
