@@ -30,7 +30,7 @@ function start() {
                 message: "What would you like to do?",
                 name: "start",
                 choices: ["Add an employee", "Add a role", "Add a department",
-                    "View employee", "View roles", "View departments"]
+                    "View employee", "View roles", "View departments", "Delete employee"]
             }
         ]).then(function (answer) {
             if (answer.start === "Add an employee") {
@@ -44,8 +44,10 @@ function start() {
                 viewEmployees()
             } else if (answer.start === "View roles") {
                 viewRoles();
-            } else {
+            } else if (answer.start === "View departments"){
                 viewDepartment();
+            } else {
+                deleteEmployee();
             }
         })
 }
@@ -175,6 +177,22 @@ function addEmployee() {
             },
         ])
         .then(function (answer) {
+            if(answer.manager.trim() === ""){
+                connection.query(
+                    "INSERT INTO employee SET ?",
+                    {
+                        first_name: answer.first,
+                        last_name: answer.last,
+                        role_id: answer.role,
+                    },
+                    function (err) {
+                        if (err) throw err;
+                        console.log("Employee added succesfully!");
+    
+                        start();
+                    }
+                );
+            }else{
             connection.query(
                 "INSERT INTO employee SET ?",
                 {
@@ -190,11 +208,13 @@ function addEmployee() {
                     start();
                 }
             );
+            }
         })
+    
 }
 //need to figure out self join for manager
 function viewEmployees() {
-    connection.query("SELECT e.id AS employee_id, role.id AS role_id, e.first_name, e.last_name, role.title AS title, m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last FROM employee e LEFT JOIN role ON e.role_id = role.id LEFT JOIN employee m on e.manager_id  = m.id", function (err, res) {
+    connection.query("SELECT e.id AS employee_id, role.id AS role_id, e.first_name, e.last_name, role.title AS title, m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last FROM employee e LEFT JOIN role ON e.role_id = role.id LEFT JOIN employee m on e.manager_id  = m.id ORDER BY e.id ASC", function (err, res) {
         if (err) throw err;
         const employeesArray = [];
         for (let i = 0; i < res.length; i++) {
@@ -202,7 +222,7 @@ function viewEmployees() {
                 {
                     "Employee ID": res[i].employee_id,
                     Name: res[i].first_name + " " + res[i].last_name,
-                    "Role ID" : res[i].role_id,
+                    "Role ID": res[i].role_id,
                     Role: res[i].title,
                     "Manager ID": res[i].manager_id,
                     "Manager Name": res[i].manager_first + " " + res[i].manager_last
@@ -213,4 +233,27 @@ function viewEmployees() {
 
         start();
     })
+}
+
+function deleteEmployee() {
+    inquirer
+        .prompt([
+            {
+                name: "id",
+                type: "input",
+                message: "What is the employee ID of the employee you would like to delete?"
+            }          
+        ]).then((answer) => {
+            connection.query("DELETE FROM employee WHERE ?",
+                {
+                    id: answer.id
+                },
+                function (err) {
+                    if (err) throw err;
+                    console.log("Employee removed succesfully!");
+
+                    start();
+                }
+            );
+        })
 }
