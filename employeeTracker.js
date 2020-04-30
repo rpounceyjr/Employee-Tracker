@@ -77,14 +77,16 @@ function addDepartment() {
 function viewDepartment() {
     connection.query("SELECT * FROM department", function (err, res) {
         if (err) throw err;
+        const deptArray = [];
         for (let i = 0; i < res.length; i++) {
-            console.table([
+            deptArray.push(
                 {
                     "Department ID": res[i].id,
                     Department: res[i].name
                 }
-            ]);
+            );
         }
+        console.table(deptArray);
         start();
     })
 }
@@ -125,20 +127,22 @@ function addRole() {
             );
         })
 }
-
+//this one is good
 function viewRoles() {
     connection.query("SELECT * FROM role LEFT JOIN department ON role.department_id = department.id", function (err, res) {
         if (err) throw err;
+        const rolesArray = [];
         for (let i = 0; i < res.length; i++) {
-            console.table([
+            rolesArray.push(
                 {
                     Role: res[i].title,
                     Salary: res[i].salary,
                     Department: res[i].name
 
                 }
-            ]);
+            );
         }
+        console.table(rolesArray);
         start();
     })
 }
@@ -186,18 +190,20 @@ function addEmployee() {
         })
 }
 function viewEmployees() {
-    connection.query("SELECT * FROM employee", function (err, res) {
+    connection.query("SELECT * FROM employee LEFT JOIN role ON employee.role_id = role.id", function (err, res) {
         if (err) throw err;
+        const employeesArray = [];
         for (let i = 0; i < res.length; i++) {
-            console.table([
+            employeesArray.push(
                 {
                     ID : res[i].id,
                     Name: res[i].first_name + " " + res[i].last_name,
-                    "Role ID": res[i].role_id,
+                    Role: res[i].title,
                     "Manager ID": res[i].manager_id
                 }
-            ]);
+            );
         }
+        console.table(employeesArray);
         start();
     })
 }
