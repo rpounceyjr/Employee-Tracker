@@ -30,7 +30,7 @@ function start() {
                 message: "What would you like to do?",
                 name: "start",
                 choices: ["Add an employee", "Add a role", "Add a department",
-                    "View employee", "View roles", "View departments", "Delete employee"]
+                    "View employees", "View roles", "View departments", "Delete employee"]
             }
         ]).then(function (answer) {
             if (answer.start === "Add an employee") {
@@ -40,7 +40,7 @@ function start() {
             } else if (answer.start === "Add a department") {
                 console.log("Add a department");
                 addDepartment();
-            } else if (answer.start === "View employee") {
+            } else if (answer.start === "View employees") {
                 viewEmployees()
             } else if (answer.start === "View roles") {
                 viewRoles();
@@ -94,7 +94,7 @@ function viewDepartment() {
         start();
     })
 }
-
+//this one is good
 function addRole() {
     inquirer
         .prompt([
@@ -212,7 +212,7 @@ function addEmployee() {
         })
     
 }
-//need to figure out self join for manager
+//this one is good
 function viewEmployees() {
     connection.query("SELECT e.id AS employee_id, role.id AS role_id, e.first_name, e.last_name, role.title AS title, m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last FROM employee e LEFT JOIN role ON e.role_id = role.id LEFT JOIN employee m on e.manager_id  = m.id ORDER BY e.id ASC", function (err, res) {
         if (err) throw err;
@@ -234,20 +234,51 @@ function viewEmployees() {
         start();
     })
 }
+function updateEmployeeRole() {
+    inquirer
+    .prompt([
+        {
+            name: "employee",
+            type: "input",
+            message: "What is the employee ID of the employee whose role you would like to update?"
+        },
+        {
+            name: "role",
+            type: "input",
+            message: "What is the ID of the role you would like to update?"
+        }             
+    ]).then((answer) => {
+        //need to figure out two WHERE constraints
+        connection.query("UPDATE FROM employee WHERE ?",
+            {
+                id: answer.id
+            },
+            function (err) {
+                if (err) throw err;
+                console.log("Employee removed succesfully!");
+
+                start();
+            }
+        );
+    })
+    
+}
 
 function deleteEmployee() {
     inquirer
         .prompt([
             {
-                name: "id",
+                name: "name",
                 type: "input",
-                message: "What is the employee ID of the employee you would like to delete?"
+                message: "What is the name of the employee you would like to delete?"
             }          
         ]).then((answer) => {
-            connection.query("DELETE FROM employee WHERE ?",
-                {
-                    id: answer.id
-                },
+            //need to figure out two WHERE constraints
+            const names = answer.name.split(" ");
+            connection.query("DELETE FROM employee WHERE first_name=? AND last_name=?",
+                [
+                    names[0], names[1]
+                ],
                 function (err) {
                     if (err) throw err;
                     console.log("Employee removed succesfully!");
