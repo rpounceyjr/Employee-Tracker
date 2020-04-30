@@ -49,6 +49,7 @@ function start() {
             }
         })
 }
+//this one is good
 function addDepartment() {
     inquirer
         .prompt([
@@ -73,7 +74,7 @@ function addDepartment() {
             );
         })
 }
-
+//this one is good
 function viewDepartment() {
     connection.query("SELECT * FROM department", function (err, res) {
         if (err) throw err;
@@ -87,6 +88,7 @@ function viewDepartment() {
             );
         }
         console.table(deptArray);
+
         start();
     })
 }
@@ -129,16 +131,17 @@ function addRole() {
 }
 //this one is good
 function viewRoles() {
-    connection.query("SELECT * FROM role LEFT JOIN department ON role.department_id = department.id", function (err, res) {
+    connection.query("SELECT role.id AS role_id, salary, department.name AS department_name, title, department.id AS department_id FROM role LEFT JOIN department ON role.department_id = department.id ORDER BY role_id ASC", function (err, res) {
         if (err) throw err;
         const rolesArray = [];
         for (let i = 0; i < res.length; i++) {
             rolesArray.push(
                 {
+                    "Role ID": res[i].role_id,
                     Role: res[i].title,
                     Salary: res[i].salary,
-                    Department: res[i].name
-
+                    "Department ID": res[i].department_id,
+                    Department: res[i].department_name
                 }
             );
         }
@@ -189,22 +192,25 @@ function addEmployee() {
             );
         })
 }
+//need to figure out self join for manager
 function viewEmployees() {
-    connection.query("SELECT * FROM employee LEFT JOIN role ON employee.role_id = role.id", function (err, res) {
+    connection.query("SELECT e.id AS employee_id, role.id AS role_id, e.first_name, e.last_name, role.title AS title, m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last FROM employee e LEFT JOIN role ON e.role_id = role.id LEFT JOIN employee m on e.manager_id  = m.id", function (err, res) {
         if (err) throw err;
         const employeesArray = [];
         for (let i = 0; i < res.length; i++) {
             employeesArray.push(
                 {
-                    ID : res[i].id,
+                    "Employee ID": res[i].employee_id,
                     Name: res[i].first_name + " " + res[i].last_name,
+                    "Role ID" : res[i].role_id,
                     Role: res[i].title,
-                    "Manager ID": res[i].manager_id
+                    "Manager ID": res[i].manager_id,
+                    "Manager Name": res[i].manager_first + " " + res[i].manager_last
                 }
             );
         }
         console.table(employeesArray);
+
         start();
     })
 }
-
