@@ -298,19 +298,21 @@ function deleteEmployee() {
 
 function viewEmployeesByManager() {
 
-    connection.query("SELECT DISTINCT m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last, e.id AS employee_id, e.first_name AS employee_first, e.last_name AS employee_last FROM employee m LEFT JOIN employee e ON m.id=e.manager_id ORDER BY m.id ASC", (err, res) => {
+    connection.query("SELECT m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last, e.id AS employee_id, e.first_name AS employee_first, e.last_name AS employee_last FROM employee m LEFT JOIN employee e ON m.id=e.manager_id ORDER BY  manager_id ASC", (err, res) => {
         if (err) throw err;
         const managersArray = [];
         for (let i = 0; i < res.length; i++) {
-            managersArray.push(
-                {
-                    "Manager ID": res[i].manager_id,
-                    Manager: res[i].manager_first + " " + res[i].manager_last,
-                    "Employee ID": res[i].employee_id,
-                    Employee: res[i].employee_first + " " + res[i].employee_last
-                }
+            if (res[i].employee_id) {
+                managersArray.push(
+                    {
+                        "Manager ID": res[i].manager_id,
+                        Manager: res[i].manager_first + " " + res[i].manager_last,
+                        "Employee ID": res[i].employee_id,
+                        Employee: res[i].employee_first + " " + res[i].employee_last
+                    }
 
-            )
+                )
+            }
 
         }
         console.table(managersArray);
