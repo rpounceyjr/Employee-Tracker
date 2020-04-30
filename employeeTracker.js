@@ -30,7 +30,8 @@ function start() {
                 message: "What would you like to do?",
                 name: "start",
                 choices: ["Add an employee", "Add a role", "Add a department",
-                    "View employees", "View roles", "View departments", "Delete employee"]
+                    "View employees", "View roles", "View departments", "Update employee role",
+                    "Delete employee"]
             }
         ]).then(function (answer) {
             if (answer.start === "Add an employee") {
@@ -44,8 +45,10 @@ function start() {
                 viewEmployees()
             } else if (answer.start === "View roles") {
                 viewRoles();
-            } else if (answer.start === "View departments"){
+            } else if (answer.start === "View departments") {
                 viewDepartment();
+            } else if (answer.start === "Update employee role") {
+                updateEmployeeRole();
             } else {
                 deleteEmployee();
             }
@@ -177,7 +180,7 @@ function addEmployee() {
             },
         ])
         .then(function (answer) {
-            if(answer.manager.trim() === ""){
+            if (answer.manager.trim() === "") {
                 connection.query(
                     "INSERT INTO employee SET ?",
                     {
@@ -188,29 +191,29 @@ function addEmployee() {
                     function (err) {
                         if (err) throw err;
                         console.log("Employee added succesfully!");
-    
+
                         start();
                     }
                 );
-            }else{
-            connection.query(
-                "INSERT INTO employee SET ?",
-                {
-                    first_name: answer.first,
-                    last_name: answer.last,
-                    role_id: answer.role,
-                    manager_id: answer.manager
-                },
-                function (err) {
-                    if (err) throw err;
-                    console.log("Employee added succesfully!");
+            } else {
+                connection.query(
+                    "INSERT INTO employee SET ?",
+                    {
+                        first_name: answer.first,
+                        last_name: answer.last,
+                        role_id: answer.role,
+                        manager_id: answer.manager
+                    },
+                    function (err) {
+                        if (err) throw err;
+                        console.log("Employee added succesfully!");
 
-                    start();
-                }
-            );
+                        start();
+                    }
+                );
             }
         })
-    
+
 }
 //this one is good
 function viewEmployees() {
@@ -236,32 +239,32 @@ function viewEmployees() {
 }
 function updateEmployeeRole() {
     inquirer
-    .prompt([
-        {
-            name: "employee",
-            type: "input",
-            message: "What is the employee ID of the employee whose role you would like to update?"
-        },
-        {
-            name: "role",
-            type: "input",
-            message: "What is the ID of the role you would like to update?"
-        }             
-    ]).then((answer) => {
-        //need to figure out two WHERE constraints
-        connection.query("UPDATE FROM employee WHERE ?",
+        .prompt([
             {
-                id: answer.id
+                name: "employee",
+                type: "input",
+                message: "What is the employee ID of the employee whose role you would like to update?"
             },
-            function (err) {
-                if (err) throw err;
-                console.log("Employee removed succesfully!");
-
-                start();
+            {
+                name: "role",
+                type: "input",
+                message: "What is the ID of the role you would like to update?"
             }
-        );
-    })
-    
+        ]).then((answer) => {
+            //need to figure out two WHERE constraints
+            connection.query("UPDATE employee SET role_id=? WHERE id=?",
+                [
+                    answer.role, answer.id
+                ],
+                function (err) {
+                    if (err) throw err;
+                    console.log("Employee role updated!");
+
+                    start();
+                }
+            );
+        })
+
 }
 
 function deleteEmployee() {
@@ -271,7 +274,7 @@ function deleteEmployee() {
                 name: "name",
                 type: "input",
                 message: "What is the name of the employee you would like to delete?"
-            }          
+            }
         ]).then((answer) => {
             //need to figure out two WHERE constraints
             const names = answer.name.split(" ");
