@@ -31,7 +31,7 @@ function start() {
                 name: "start",
                 choices: ["Add an employee", "Add a role", "Add a department",
                     "View employees", "View roles", "View departments", "Update employee role", 
-                    "Update employee manager", "View employees by manager", "Delete employee"]
+                    "Update employee manager", "View employees by manager", "Delete role","Delete employee"]
             }
         ]).then(function (answer) {
             if (answer.start === "Add an employee") {
@@ -53,6 +53,8 @@ function start() {
                 updateEmployeeManager();
             } else if (answer.start === "View employees by manager") {
                 viewEmployeesByManager();
+            } else if (answer.start === "Delete role") {
+                deleteRole();
             } else {
                 deleteEmployee();
             }
@@ -296,6 +298,31 @@ function deleteEmployee() {
                 }
             );
         })
+}
+
+function deleteRole(){
+    inquirer
+        .prompt([
+            {
+                name: "id",
+                type: "input",
+                message: "What is the id of the role you would like to delete?"
+            }
+        ]).then((answer) => {
+            //need to figure out two WHERE constraints
+            connection.query("DELETE FROM role WHERE id=?",
+                [
+                    answer.id
+                ],
+                function (err) {
+                    if (err) throw err;
+                    console.log("Role removed succesfully!");
+
+                    start();
+                }
+            );
+        })
+
 }
 //this one is good
 function viewEmployeesByManager() {
