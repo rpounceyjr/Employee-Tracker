@@ -30,8 +30,9 @@ function start() {
                 message: "What would you like to do?",
                 name: "start",
                 choices: ["Add an employee", "Add a role", "Add a department",
-                    "View employees", "View roles", "View departments", "Update employee role", 
-                    "Update employee manager", "View employees by manager", "Delete role","Delete employee"]
+                    "View employees", "View roles", "View departments", "Update employee role",
+                    "Update employee manager", "View employees by manager",
+                    "Delete department", "Delete role", "Delete employee"]
             }
         ]).then(function (answer) {
             if (answer.start === "Add an employee") {
@@ -53,6 +54,8 @@ function start() {
                 updateEmployeeManager();
             } else if (answer.start === "View employees by manager") {
                 viewEmployeesByManager();
+            } else if (answer.start === "Delete department") {
+                deleteDepartment();
             } else if (answer.start === "Delete role") {
                 deleteRole();
             } else {
@@ -262,7 +265,7 @@ function updateEmployeeRole() {
             const names = answer.name.split(" ");
             connection.query("UPDATE employee SET role_id=? WHERE first_name=? AND last_name=?",
                 [
-                    answer.role, names[0], names[1], 
+                    answer.role, names[0], names[1],
                 ],
                 function (err) {
                     if (err) throw err;
@@ -300,7 +303,7 @@ function deleteEmployee() {
         })
 }
 
-function deleteRole(){
+function deleteRole() {
     inquirer
         .prompt([
             {
@@ -309,6 +312,12 @@ function deleteRole(){
                 message: "What is the id of the role you would like to delete?"
             }
         ]).then((answer) => {
+            connection.query("UPDATE employee SET role_id= NULL WHERE role_id=?",
+                [
+                    answer.id
+                ], function (err) {
+                    if (err) throw err;
+                })
             //need to figure out two WHERE constraints
             connection.query("DELETE FROM role WHERE id=?",
                 [
@@ -317,6 +326,29 @@ function deleteRole(){
                 function (err) {
                     if (err) throw err;
                     console.log("Role removed succesfully!");
+
+                    start();
+                }
+            );
+        })
+}
+function deleteDepartment() {
+    inquirer
+        .prompt([
+            {
+                name: "id",
+                type: "input",
+                message: "What is the ID of the department you would like to delete?"
+            }
+        ]).then((answer) => {
+            //need to figure out two WHERE constraints
+            connection.query("DELETE FROM department WHERE id=?",
+                [
+                    answer.id
+                ],
+                function (err) {
+                    if (err) throw err;
+                    console.log("Department removed succesfully!");
 
                     start();
                 }
@@ -350,34 +382,34 @@ function viewEmployeesByManager() {
     })
 }
 
-function updateEmployeeManager(){
+function updateEmployeeManager() {
     inquirer
-    .prompt([
-        {
-            name: "name",
-            type: "input",
-            message: "What is the name of the employee whose manager you would like to update?"
-        },
-        {
-            name: "manager_id",
-            type: "input",
-            message: "What is the ID of the manager to which you would like to update?"
-        }
-    ]).then((answer) => {
-        //need to figure out two WHERE constraints
-        const names = answer.name.split(" ");
-        connection.query("UPDATE employee SET manager_id=? WHERE first_name=? AND last_name=?",
-            [
-                answer.manager_id, names[0], names[1]
-            ],
-            function (err) {
-                if (err) throw err;
-                console.log("Employee manager updated!");
-
-                start();
+        .prompt([
+            {
+                name: "name",
+                type: "input",
+                message: "What is the name of the employee whose manager you would like to update?"
+            },
+            {
+                name: "manager_id",
+                type: "input",
+                message: "What is the ID of the manager to which you would like to update?"
             }
-        );
-    })
+        ]).then((answer) => {
+            //need to figure out two WHERE constraints
+            const names = answer.name.split(" ");
+            connection.query("UPDATE employee SET manager_id=? WHERE first_name=? AND last_name=?",
+                [
+                    answer.manager_id, names[0], names[1]
+                ],
+                function (err) {
+                    if (err) throw err;
+                    console.log("Employee manager updated!");
+
+                    start();
+                }
+            );
+        })
 
 
 }
