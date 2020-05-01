@@ -302,7 +302,7 @@ function deleteEmployee() {
             );
         })
 }
-
+//this one is good
 function deleteRole() {
     inquirer
         .prompt([
@@ -317,6 +317,7 @@ function deleteRole() {
                     answer.id
                 ], function (err) {
                     if (err) throw err;
+                    console.log("Employees who previously held this role have had their information updated to reflect role removal.")
                 })
             //need to figure out two WHERE constraints
             connection.query("DELETE FROM role WHERE id=?",
@@ -342,6 +343,15 @@ function deleteDepartment() {
             }
         ]).then((answer) => {
             //need to figure out two WHERE constraints
+            connection.query("UPDATE role SET department_id=NULL WHERE department_id=?",
+                [
+                    answer.id
+                ],
+                function (err) {
+                    if (err) throw err;
+                    console.log("Roles associated with this department have been updated to reflect department removal.")
+                }
+            );
             connection.query("DELETE FROM department WHERE id=?",
                 [
                     answer.id
