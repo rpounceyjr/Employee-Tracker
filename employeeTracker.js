@@ -1,6 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-const cTable = require('console.table');
+// require('console.table');
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -251,21 +251,20 @@ function updateEmployeeRole() {
     inquirer
         .prompt([
             {
-                name: "name",
+                name: "id",
                 type: "input",
-                message: "What is the name of the employee whose role you would like to update?"
+                message: "What is the employee ID of the employee whose role you would like to update?"
             },
             {
                 name: "role",
                 type: "input",
-                message: "What is the ID of the role to which you would like to update?"
+                message: "What is the role ID of the role to which you would like to update?"
             }
         ]).then((answer) => {
-            //need to figure out two WHERE constraints
-            const names = answer.name.split(" ");
-            connection.query("UPDATE employee SET role_id=? WHERE first_name=? AND last_name=?",
+            // const names = answer.name.split(" ");
+            connection.query("UPDATE employee SET role_id=? WHERE id=?",
                 [
-                    answer.role, names[0], names[1],
+                    answer.role, answer.id,
                 ],
                 function (err) {
                     if (err) throw err;
@@ -282,16 +281,15 @@ function deleteEmployee() {
     inquirer
         .prompt([
             {
-                name: "name",
+                name: "id",
                 type: "input",
-                message: "What is the name of the employee you would like to delete?"
+                message: "What is the employee ID of the employee you would like to delete?"
             }
         ]).then((answer) => {
             //need to figure out two WHERE constraints
-            const names = answer.name.split(" ");
-            connection.query("DELETE FROM employee WHERE first_name=? AND last_name=?",
+            connection.query("DELETE FROM employee WHERE id=?",
                 [
-                    names[0], names[1]
+                    answer.id
                 ],
                 function (err) {
                     if (err) throw err;
@@ -391,7 +389,6 @@ function viewEmployeesByManager() {
         start();
     })
 }
-
 function updateEmployeeManager() {
     inquirer
         .prompt([
@@ -420,6 +417,26 @@ function updateEmployeeManager() {
                 }
             );
         })
-
-
 }
+function showReferenceTable() {
+    connection.query("SELECT department.id AS department_id, department.name AS department_name, e.id AS employee_id, role.id AS role_id, e.first_name, e.last_name, role.title AS title, m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last FROM employee e LEFT JOIN role ON e.role_id = role.id LEFT JOIN employee m ON e.manager_id  = m.id LEFT JOIN department ON department.id=role.department_id ORDER BY e.id ASC", function (err, res) {
+        if (err) throw err;
+        const referenceTable = [];
+        for (let i = 0; i < res.length; i++) {
+            referenceTable.push(
+                {
+                    "Employee ID": res[i].employee_id,
+                    Name: res[i].first_name + " " + res[i].last_name,
+                    "Role ID": res[i].role_id,
+                    Role: res[i].title,
+                    "Department ID": res[i].department_id,
+                    Department: res[i].department_name,
+                    "Manager ID": res[i].manager_id,
+                    "Manager Name": res[i].manager_first + " " + res[i].manager_last
+                }
+            );
+        }
+        console.table(referenceTable);
+    })
+}
+
