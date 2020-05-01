@@ -393,9 +393,9 @@ function updateEmployeeManager() {
     inquirer
         .prompt([
             {
-                name: "name",
+                name: "id",
                 type: "input",
-                message: "What is the name of the employee whose manager you would like to update?"
+                message: "What is the employee ID of the employee whose manager you would like to update?"
             },
             {
                 name: "manager_id",
@@ -404,10 +404,9 @@ function updateEmployeeManager() {
             }
         ]).then((answer) => {
             //need to figure out two WHERE constraints
-            const names = answer.name.split(" ");
-            connection.query("UPDATE employee SET manager_id=? WHERE first_name=? AND last_name=?",
+            connection.query("UPDATE employee SET manager_id=? WHERE id=?",
                 [
-                    answer.manager_id, names[0], names[1]
+                    answer.manager_id, answer.id
                 ],
                 function (err) {
                     if (err) throw err;
