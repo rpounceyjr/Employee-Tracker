@@ -30,8 +30,8 @@ function start() {
                 message: "What would you like to do?",
                 name: "start",
                 choices: ["Add an employee", "Add a role", "Add a department",
-                    "View employees", "View roles", "View departments", "Update employee role",
-                    "View employees by manager", "Delete employee"]
+                    "View employees", "View roles", "View departments", "Update employee role", 
+                    "Update employee manager", "View employees by manager", "Delete employee"]
             }
         ]).then(function (answer) {
             if (answer.start === "Add an employee") {
@@ -49,6 +49,8 @@ function start() {
                 viewDepartment();
             } else if (answer.start === "Update employee role") {
                 updateEmployeeRole();
+            } else if (answer.start === "Update employee manager") {
+                updateEmployeeManager();
             } else if (answer.start === "View employees by manager") {
                 viewEmployeesByManager();
             } else {
@@ -239,7 +241,7 @@ function viewEmployees() {
         start();
     })
 }
-// this one is good
+
 function updateEmployeeRole() {
     inquirer
         .prompt([
@@ -256,9 +258,9 @@ function updateEmployeeRole() {
         ]).then((answer) => {
             //need to figure out two WHERE constraints
             const names = answer.name.split(" ");
-            connection.query("UPDATE employee SET first_name=?, last_name=? WHERE id=?",
+            connection.query("UPDATE employee SET role_id=? WHERE first_name=? AND last_name=?",
                 [
-                    names[0], names[1], answer.id
+                    answer.role, names[0], names[1], 
                 ],
                 function (err) {
                     if (err) throw err;
@@ -295,10 +297,10 @@ function deleteEmployee() {
             );
         })
 }
-
+//this one is good
 function viewEmployeesByManager() {
 
-    connection.query("SELECT m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last, e.id AS employee_id, e.first_name AS employee_first, e.last_name AS employee_last FROM employee m LEFT JOIN employee e ON m.id=e.manager_id ORDER BY  manager_id ASC", (err, res) => {
+    connection.query("SELECT m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last, e.id AS employee_id, e.first_name AS employee_first, e.last_name AS employee_last FROM employee m LEFT JOIN employee e ON m.id=e.manager_id ORDER BY manager_id ASC", (err, res) => {
         if (err) throw err;
         const managersArray = [];
         for (let i = 0; i < res.length; i++) {
@@ -316,6 +318,39 @@ function viewEmployeesByManager() {
 
         }
         console.table(managersArray);
+
         start();
     })
+}
+
+function updateEmployeeManager(){
+    inquirer
+    .prompt([
+        {
+            name: "name",
+            type: "input",
+            message: "What is the name of the employee whose manager you would like to update?"
+        },
+        {
+            name: "manager_id",
+            type: "input",
+            message: "What is the ID of the manager to which you would like to update?"
+        }
+    ]).then((answer) => {
+        //need to figure out two WHERE constraints
+        const names = answer.name.split(" ");
+        connection.query("UPDATE employee SET manager_id=? WHERE first_name=? AND last_name=?",
+            [
+                answer.manager_id, names[0], names[1]
+            ],
+            function (err) {
+                if (err) throw err;
+                console.log("Employee manager updated!");
+
+                start();
+            }
+        );
+    })
+
+
 }
