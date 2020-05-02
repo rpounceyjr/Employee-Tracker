@@ -4,7 +4,7 @@
 
 A command line content management system that uses Node, Inquirer, and MySQL to manage employee information.
 
-
+![Employee Tracker Demo](images/Employee-Tracker-Demo.gif)
 
 Email: rpounceyjr@gmail.com
 
