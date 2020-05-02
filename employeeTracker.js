@@ -1,18 +1,11 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-const queryFunctions = require("./queryFunctionsScript");
 // require('console.table');
 
 const connection = mysql.createConnection({
     host: "localhost",
-
-    // Your port; if not 3306
     port: 3306,
-
-    // Your username
     user: "root",
-
-    // Your password
     password: "",
     database: "employee_trackerDB"
 });
@@ -22,7 +15,6 @@ connection.connect(function (err) {
     console.log("connected as id " + connection.threadId);
     start();
 });
-
 
 function start() {
     inquirer
@@ -45,10 +37,8 @@ function start() {
             }
         })
 }
-
 //functions that query the DB
 //===============================================================
-//this one is good
 function addDepartment() {
     inquirer
         .prompt([
@@ -73,7 +63,7 @@ function addDepartment() {
             );
         })
 }
-//this one is good
+
 function viewDepartment() {
     connection.query("SELECT * FROM department", function (err, res) {
         if (err) throw err;
@@ -91,7 +81,7 @@ function viewDepartment() {
         start();
     })
 }
-//this one is good
+
 function addRole() {
     inquirer
         .prompt([
@@ -128,7 +118,7 @@ function addRole() {
             );
         })
 }
-//this one is good
+
 function viewRoles() {
     connection.query("SELECT role.id AS role_id, salary, department.name AS department_name, title, department.id AS department_id FROM role LEFT JOIN department ON role.department_id = department.id ORDER BY role_id ASC", function (err, res) {
         if (err) throw err;
@@ -148,7 +138,7 @@ function viewRoles() {
         start();
     })
 }
-//first_name, last_name, role_id, manager_id
+
 function addEmployee() {
     inquirer
         .prompt([
@@ -206,7 +196,7 @@ function addEmployee() {
         })
 
 }
-//this one is good
+
 function viewEmployees() {
     connection.query("SELECT e.id AS employee_id, role.id AS role_id, e.first_name, e.last_name, role.title AS title, m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last FROM employee e LEFT JOIN role ON e.role_id = role.id LEFT JOIN employee m on e.manager_id  = m.id ORDER BY e.id ASC", function (err, res) {
         if (err) throw err;
@@ -228,7 +218,7 @@ function viewEmployees() {
         start();
     })
 }
-//this one is good
+
 function updateEmployeeRole() {
     inquirer
         .prompt([
@@ -243,7 +233,6 @@ function updateEmployeeRole() {
                 message: "What is the role ID of the role to which you would like to update?"
             }
         ]).then((answer) => {
-            // const names = answer.name.split(" ");
             connection.query("UPDATE employee SET role_id=? WHERE id=?",
                 [
                     answer.role, answer.id,
@@ -256,9 +245,7 @@ function updateEmployeeRole() {
                 }
             );
         })
-
 }
-//this one is good
 function deleteEmployee() {
     inquirer
         .prompt([
@@ -268,7 +255,6 @@ function deleteEmployee() {
                 message: "What is the employee ID of the employee you would like to delete?"
             }
         ]).then((answer) => {
-            //need to figure out two WHERE constraints
             connection.query("DELETE FROM employee WHERE id=?",
                 [
                     answer.id
@@ -282,7 +268,7 @@ function deleteEmployee() {
             );
         })
 }
-//this one is good
+
 function deleteRole() {
     inquirer
         .prompt([
@@ -299,7 +285,6 @@ function deleteRole() {
                     if (err) throw err;
                     console.log("Employees who previously held this role have had their information updated to reflect role removal.")
                 })
-            //need to figure out two WHERE constraints
             connection.query("DELETE FROM role WHERE id=?",
                 [
                     answer.id
@@ -322,7 +307,6 @@ function deleteDepartment() {
                 message: "What is the ID of the department you would like to delete?"
             }
         ]).then((answer) => {
-            //need to figure out two WHERE constraints
             connection.query("UPDATE role SET department_id=NULL WHERE department_id=?",
                 [
                     answer.id
@@ -344,11 +328,9 @@ function deleteDepartment() {
                 }
             );
         })
-
 }
-//this one is good
-function viewEmployeesByManager() {
 
+function viewEmployeesByManager() {
     connection.query("SELECT m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last, e.id AS employee_id, e.first_name AS employee_first, e.last_name AS employee_last FROM employee m LEFT JOIN employee e ON m.id=e.manager_id ORDER BY manager_id ASC", (err, res) => {
         if (err) throw err;
         const managersArray = [];
@@ -371,7 +353,6 @@ function viewEmployeesByManager() {
         start();
     })
 }
-//this one is good
 function updateEmployeeManager() {
     inquirer
         .prompt([
@@ -386,7 +367,6 @@ function updateEmployeeManager() {
                 message: "What is the ID of the manager to which you would like to update?"
             }
         ]).then((answer) => {
-            //need to figure out two WHERE constraints
             connection.query("UPDATE employee SET manager_id=? WHERE id=?",
                 [
                     answer.manager_id, answer.id
@@ -401,7 +381,6 @@ function updateEmployeeManager() {
         })
 }
 
-//this one is good
 function viewAllInformation() {
     connection.query("SELECT department.id AS department_id, department.name AS department_name, e.id AS employee_id, role.id AS role_id, e.first_name, e.last_name, role.title AS title, m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last FROM employee e LEFT JOIN role ON e.role_id = role.id LEFT JOIN employee m ON e.manager_id  = m.id LEFT JOIN department ON department.id=role.department_id ORDER BY e.id ASC", function (err, res) {
         if (err) throw err;
@@ -421,11 +400,10 @@ function viewAllInformation() {
             );
         }
         console.table(referenceTable);
+        start();
     })
 }
-
 //VIEW, ADD, UPDATE, DELETE question functions
-
 //===============================================================
 function viewQuestions() {
     inquirer
@@ -510,8 +488,3 @@ function deleteQuestions() {
             }
         })
 }
-
-
-
-
-
