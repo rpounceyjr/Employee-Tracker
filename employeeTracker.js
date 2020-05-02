@@ -1,8 +1,9 @@
-var mysql = require("mysql");
-var inquirer = require("inquirer");
+const mysql = require("mysql");
+const inquirer = require("inquirer");
+const queryFunctions = require("./queryFunctionsScript");
 // require('console.table');
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
     host: "localhost",
 
     // Your port; if not 3306
@@ -22,6 +23,7 @@ connection.connect(function (err) {
     start();
 });
 
+
 function start() {
     inquirer
         .prompt([
@@ -29,40 +31,23 @@ function start() {
                 type: "list",
                 message: "What would you like to do?",
                 name: "start",
-                choices: ["Add an employee", "Add a role", "Add a department",
-                    "View employees", "View roles", "View departments", "Update employee role",
-                    "Update employee manager", "View employees by manager",
-                    "Delete department", "Delete role", "Delete employee"]
+                choices: ["VIEW", "ADD", "UPDATE", "DELETE"]
             }
         ]).then(function (answer) {
-            if (answer.start === "Add an employee") {
-                addEmployee();
-            } else if (answer.start === "Add a role") {
-                addRole();
-            } else if (answer.start === "Add a department") {
-                console.log("Add a department");
-                addDepartment();
-            } else if (answer.start === "View employees") {
-                viewEmployees()
-            } else if (answer.start === "View roles") {
-                viewRoles();
-            } else if (answer.start === "View departments") {
-                viewDepartment();
-            } else if (answer.start === "Update employee role") {
-                updateEmployeeRole();
-            } else if (answer.start === "Update employee manager") {
-                updateEmployeeManager();
-            } else if (answer.start === "View employees by manager") {
-                viewEmployeesByManager();
-            } else if (answer.start === "Delete department") {
-                deleteDepartment();
-            } else if (answer.start === "Delete role") {
-                deleteRole();
+            if (answer.start === "VIEW") {
+                viewQuestions();
+            } else if (answer.start === "ADD") {
+                addQuestions();
+            } else if (answer.start === "UPDATE") {
+                updateQuestions();
             } else {
-                deleteEmployee();
+                deleteQuestions();
             }
         })
 }
+
+//functions that query the DB
+//===============================================================
 //this one is good
 function addDepartment() {
     inquirer
@@ -168,14 +153,10 @@ function addEmployee() {
     inquirer
         .prompt([
             {
-                name: "first",
+                name: "name",
                 type: "input",
-                message: "What is this employee's first name?"
-            },
-            {
-                name: "last",
-                type: "input",
-                message: "What is this employee's last name?"
+                message: "What is this employee's name?"
+            
             },
             {
                 name: "role",
@@ -189,12 +170,13 @@ function addEmployee() {
             },
         ])
         .then(function (answer) {
+            const employeeFirstAndLastNames = answer.name.split(" ")
             if (answer.manager.trim() === "") {
                 connection.query(
                     "INSERT INTO employee SET ?",
                     {
-                        first_name: answer.first,
-                        last_name: answer.last,
+                        first_name: employeeFirstAndLastNames[0],
+                        last_name: employeeFirstAndLastNames[1],
                         role_id: answer.role,
                     },
                     function (err) {
@@ -208,8 +190,8 @@ function addEmployee() {
                 connection.query(
                     "INSERT INTO employee SET ?",
                     {
-                        first_name: answer.first,
-                        last_name: answer.last,
+                        first_name: employeeFirstAndLastNames[0],
+                        last_name: employeeFirstAndLastNames[1],
                         role_id: answer.role,
                         manager_id: answer.manager
                     },
@@ -246,7 +228,7 @@ function viewEmployees() {
         start();
     })
 }
-
+//this one is good
 function updateEmployeeRole() {
     inquirer
         .prompt([
@@ -389,6 +371,7 @@ function viewEmployeesByManager() {
         start();
     })
 }
+//this one is good
 function updateEmployeeManager() {
     inquirer
         .prompt([
@@ -417,7 +400,9 @@ function updateEmployeeManager() {
             );
         })
 }
-function showReferenceTable() {
+
+//this one is good
+function viewAllInformation() {
     connection.query("SELECT department.id AS department_id, department.name AS department_name, e.id AS employee_id, role.id AS role_id, e.first_name, e.last_name, role.title AS title, m.id AS manager_id, m.first_name AS manager_first, m.last_name AS manager_last FROM employee e LEFT JOIN role ON e.role_id = role.id LEFT JOIN employee m ON e.manager_id  = m.id LEFT JOIN department ON department.id=role.department_id ORDER BY e.id ASC", function (err, res) {
         if (err) throw err;
         const referenceTable = [];
@@ -438,4 +423,95 @@ function showReferenceTable() {
         console.table(referenceTable);
     })
 }
+
+//VIEW, ADD, UPDATE, DELETE question functions
+
+//===============================================================
+function viewQuestions() {
+    inquirer
+        .prompt([
+            {
+                name: "view",
+                type: "list",
+                message: "What would you like to view?",
+                choices: ["View all information", "View employees", "View roles", "View departments", "View employees by manager"]
+            }
+        ]).then((answer) => {
+            if (answer.view === "View all information") {
+                viewAllInformation();
+            } else if (answer.view === "View employees") {
+                viewEmployees();
+            } else if (answer.view === "View roles") {
+                viewRoles();
+            } else if (answer.view === "View departments") {
+                viewDepartment();
+            } else {
+                viewEmployeesByManager();
+            }
+        })
+}
+
+function updateQuestions() {
+    inquirer
+        .prompt([
+            {
+                name: "update",
+                type: "list",
+                message: "What would you like to update?",
+                choices: ["Update employee role", "Update employee manager"]
+            }
+        ]).then((answer) => {
+            if (answer.update === "Update employee role") {
+                updateEmployeeRole();
+            } else {
+                updateEmployeeManager();
+            }
+        })
+
+}
+
+function addQuestions() {
+    inquirer
+        .prompt([
+            {
+                name: "add",
+                type: "list",
+                message: "What would you like to add?",
+                choices: ["Add an employee", "Add a role", "Add a department"]
+            }
+        ]).then((answer) => {
+            if (answer.add === "Add an employee") {
+                addEmployee();
+            } else if (answer.add === "Add a role") {
+                addRole();
+            } else {
+                addDepartment();
+            }
+        })
+
+}
+
+function deleteQuestions() {
+    inquirer
+        .prompt([
+            {
+                name: "delete",
+                type: "list",
+                message: "What would you like to delete?",
+                choices: ["Delete an employee", "Delete a role", "Delete a department"]
+            }
+        ]).then((answer) => {
+            if (answer.delete === "Delete an employee") {
+                deleteEmployee();
+            } else if (answer.delete === "Delete a role") {
+                deleteRole();
+            } else {
+                deleteDepartment();
+            }
+        })
+}
+
+
+
+
 
